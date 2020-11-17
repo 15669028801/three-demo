@@ -19,6 +19,8 @@ import {
   Vector2,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GUI } from "dat.gui";
+import AxisGridHelper from './AxisGridHelper';
 
 export interface ThreeDemoProps {}
 
@@ -29,11 +31,17 @@ const ThreeDemo: React.FC<ThreeDemoProps> = () => {
     const loader = new GLTFLoader();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.2, 2000);
     const renderer = new THREE.WebGLRenderer({ canvas: ref.current });
-    camera.position.z = 4;
+    camera.position.z = 3;
+    camera.position.x = 3;
+    camera.position.y = 2;
     const { clientWidth, clientHeight } = ref.current;
     renderer.setSize(clientWidth, clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio * 2);
 
+    const axes = new THREE.AxesHelper();
+    axes.material.depthTest = false;
+    axes.renderOrder = 1;
+    scene.add(axes)
     // 灯光
     // const color = 0xFFFFFF;
     // const intensity = 1;
@@ -42,15 +50,16 @@ const ThreeDemo: React.FC<ThreeDemoProps> = () => {
     // scene.add(light);
 
     let directionalLight = new DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(-1, 2, 4);
+    directionalLight.position.set(8, 4, -2);
     let dhelper = new DirectionalLightHelper(directionalLight, 5, 0xff0000);
 
     let hemisphereLight = new HemisphereLight(0xffffff, 0xffffff, 0.4);
-    hemisphereLight.position.set(0, 8, 0);
+    hemisphereLight.position.set(8, 8, 8);
     let hHelper = new HemisphereLightHelper(hemisphereLight, 5);
 
     scene.add(directionalLight);
     scene.add(hemisphereLight);
+    scene.add(hHelper);
 
     // animate();
     loader.load(
@@ -59,6 +68,13 @@ const ThreeDemo: React.FC<ThreeDemoProps> = () => {
         console.log('😋🙃: initThree -> gltf', gltf);
         console.log('加载成功！！！');
         scene.add(gltf.scene);
+        const gui = new GUI();
+        function makeAxisGrid(node, label, units = 10) {
+          const helper = new AxisGridHelper(node, units);
+          gui.add(helper, 'visible').name(label);
+        }
+         
+        makeAxisGrid(gltf.scene, 'car', 25);
         // 模型Mesh开启阴影
         gltf.scene.traverse((obj) => {
           if (obj.isMesh) {
@@ -90,8 +106,10 @@ const ThreeDemo: React.FC<ThreeDemoProps> = () => {
           if (intersects.length > 0) {
             console.log(2222222222);
             let selectedObjects = intersects[0].object;
+            console.log("😋🙃: selectHandler -> selectedObjects", selectedObjects);
             let newMaterial = selectedObjects.material.clone();
-            newMaterial.color = new Color('#D3C542'); //重新修改颜色
+            console.log("😋🙃: selectHandler -> selectedObjects.material", selectedObjects.material);
+            newMaterial.color = new Color('#ff0000'); //重新修改颜色
             selectedObjects.material = newMaterial;
             let composer = new EffectComposer(renderer);
             let renderPass = new RenderPass(scene, camera);
@@ -130,7 +148,7 @@ const ThreeDemo: React.FC<ThreeDemoProps> = () => {
     });
     let floor = new Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -0.5 * Math.PI;
-    floor.position.y = -0.55;
+    floor.position.y = -0.52;
 
     scene.add(floor);
 

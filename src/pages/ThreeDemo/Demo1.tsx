@@ -80,7 +80,7 @@ const Demo1: React.FC<Demo1Props> = () => {
     renderer.render(scene, camera);
 
     // 动画
-    // function render(time) {
+    // function render(time) {  
     //   time *= 0.001;  // convert time to seconds
      
     //   cube.rotation.x = time;
